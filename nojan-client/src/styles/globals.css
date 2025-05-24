@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: var(
+    --bg,
+    linear-gradient(180deg, #ebf3fa 1.04%, #e6eff9 33.33%, #e5f0f9 100%)
+  );
+}
+
+html {
+  background: var(
+    --bg,
+    linear-gradient(180deg, #ebf3fa 1.04%, #e6eff9 33.33%, #e5f0f9 100%)
+  );
+}
+
+.device-card:hover button {
+  background-color: black;
+}
+
+.device-card:hover path {
+  fill: white !important;
+}
+
+.custom-input {
+  border: 1px solid var(--form-line, #cfdbe7);
+  background: var(--clena, linear-gradient(135deg, #e1edf8 0%, #eef1f3 100%));
+  box-shadow: -12px -10px 12px 0px rgba(255, 255, 255, 0.75) inset,
+    0px 8px 17px 0px #c9d3e2 inset, 0px 2px 22px 0px #c8d4e2 inset;
+}
+
+.custom-input:focus {
+  border: 1px solid var(--form-line, #cfdbe7);
+  background: var(--clena, linear-gradient(135deg, #e1edf8 0%, #eef1f3 100%));
+  box-shadow: -12px -10px 12px 0px rgba(255, 255, 255, 0.75) inset,
+    0px 8px 17px 0px #c9d3e2 inset, 0px 2px 22px 0px #c8d4e2 inset;
+}

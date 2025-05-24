@@ -1,0 +1,11 @@
+{
+  "name": "nozhen",
+  "version": "1.0.0",
+  "scripts": {
+    "start-dev": "concurrently \"npm --prefix ./nojan-server start\" \"npm --prefix ./nojan-client run dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "private": true
+}

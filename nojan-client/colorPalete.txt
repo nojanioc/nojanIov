@@ -1,0 +1,5 @@
+#E31D23 = red-600
+#BC3726 = orange-700
+#EF4444 = red-500
+#EBF3FA = blue-100
+#E6EFF9 = sky-100
