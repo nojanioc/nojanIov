@@ -7,7 +7,7 @@ const User = require("../models/user");
 const initializeSocket = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: "http://localhost:3000", // Replace with your frontend domain
+      origin: ["http://localhost:3000", "http://37.32.15.0:3000"], // Allow both localhost and IP address
       methods: ["GET", "POST"],
       allowedHeaders: ["Content-Type", "Authorization"],
       credentials: true,

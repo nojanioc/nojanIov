@@ -5,8 +5,8 @@
   "devFiles": [],
   "ampDevFiles": [],
   "lowPriorityFiles": [
-    "static/knpV3QFyVwUCSv-lAyhU0/_buildManifest.js",
-    "static/knpV3QFyVwUCSv-lAyhU0/_ssgManifest.js"
+    "static/4c2mv09THjQjA1WG8eR9_/_buildManifest.js",
+    "static/4c2mv09THjQjA1WG8eR9_/_ssgManifest.js"
   ],
   "rootMainFiles": [],
   "pages": {
@@ -49,7 +49,7 @@
       "static/chunks/681-273addec85f317d8.js",
       "static/chunks/675-9fcdb742a32f88a7.js",
       "static/chunks/920-c973cc5b200eff36.js",
-      "static/chunks/pages/devices/dishwasher-d078d39c2a9b2a8a.js"
+      "static/chunks/pages/devices/dishwasher-4febd29900b1b123.js"
     ],
     "/login": [
       "static/chunks/webpack-6ef43a8d4a395f49.js",
@@ -75,7 +75,7 @@
       "static/chunks/121-62834c4e4ddcd42b.js",
       "static/chunks/920-c973cc5b200eff36.js",
       "static/chunks/411-6f45d930f01c59c2.js",
-      "static/chunks/pages/stats-4df3db20c30ce6ef.js"
+      "static/chunks/pages/stats-3ee1865651d7b441.js"
     ],
     "/users": [
       "static/chunks/webpack-6ef43a8d4a395f49.js",
