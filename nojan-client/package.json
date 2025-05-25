@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build-prd": "cross-env NODE_ENV=production next build",
     "start": "next start",
     "lint": "next lint",
     "node": "node server.js"
@@ -23,6 +24,7 @@
     "chart.js": "^4.4.9",
     "classnames": "^2.5.1",
     "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
     "eslint": "8.56.0",
     "eslint-config-next": "14.1.0",
     "express": "^4.18.3",
@@ -51,6 +53,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.17",
+    "cross-env": "^7.0.3",
     "postcss": "^8.4.34"
   }
 }

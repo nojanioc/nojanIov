@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "scripts": {
     "start-dev": "concurrently \"npm --prefix ./nojan-server start\" \"npm --prefix ./nojan-client run dev\"",
-    "build-prd": "npm --prefix ./nojan-client run build",
-    "start-prd": "concurrently \"npm --prefix ./nojan-server start\" \"npm --prefix ./nojan-client run start\""
+    "build-dev": "npm --prefix ./nojan-client run build",
+    "build-prd": "npm --prefix ./nojan-client run build-prd",
+    "start": "concurrently \"npm --prefix ./nojan-server start\" \"npm --prefix ./nojan-client run start\""
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

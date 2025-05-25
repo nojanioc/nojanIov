@@ -32,6 +32,8 @@ ChartJS.register(
 );
 
 const Landing = () => {
+  console.log(process.env.NEXTAUTH_URL, process.env.NODE_ENV, "test");
+
   const router = useRouter();
   const session = useSession();
   const user = useQuery("user", () => getMe());
