@@ -2,8 +2,9 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/users": "pages/users.js",
+  "/": "pages/index.js",
   "/api/auth/session": "pages/api/auth/session.js",
-  "/stats": "pages/stats.js",
-  "/": "pages/index.js"
+  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
+  "/devices/dishwasher": "pages/devices/dishwasher.js",
+  "/login": "pages/login.js"
 }
