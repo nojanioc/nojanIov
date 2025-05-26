@@ -2,10 +2,11 @@
   "name": "nozhen",
   "version": "1.0.0",
   "scripts": {
-    "start-dev": "concurrently \"npm --prefix ./nojan-server start\" \"npm --prefix ./nojan-client run dev\"",
-    "build-dev": "npm --prefix ./nojan-client run build",
+    "dev": "concurrently \"npm --prefix ./nojan-server start\" \"npm --prefix ./nojan-client run dev\"",
+    "build": "npm --prefix ./nojan-client run build",
     "build-prd": "npm --prefix ./nojan-client run build-prd",
-    "start": "concurrently \"npm --prefix ./nojan-server start\" \"npm --prefix ./nojan-client run start\""
+    "start": "concurrently \"npm --prefix ./nojan-server start\" \"npm --prefix ./nojan-client run start\"",
+    "setup": "npm install && npm --prefix ./nojan-server install && npm --prefix ./nojan-client install"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

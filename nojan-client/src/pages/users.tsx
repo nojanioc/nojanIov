@@ -19,6 +19,7 @@ import {
 } from "flowbite-react";
 import { GetServerSidePropsContext } from "next";
 import { getSession, useSession } from "next-auth/react";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -126,7 +127,9 @@ const Users = () => {
   return (
     <Layuot>
       <div className="space-y-6">
-        {/* Header Section */}
+        <Head>
+          <title>نوژن - کاربران</title>
+        </Head>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-800">مدیریت کاربران</h1>
@@ -134,7 +137,6 @@ const Users = () => {
           </div>
         </div>
 
-        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="bg-gradient-to-br from-red-50 to-red-100 border-0">
             <div className="flex items-center justify-between">

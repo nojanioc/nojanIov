@@ -1,6 +1,7 @@
 import { RegisterFormData } from "@/api/user";
 import { Button } from "flowbite-react";
 import { signIn } from "next-auth/react";
+import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -43,6 +44,9 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100">
+      <Head>
+        <title>نوژن - ورود</title>
+      </Head>
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
           {/* Logo and Welcome Section */}

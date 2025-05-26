@@ -5,6 +5,7 @@ import Layout from "@/components/layout";
 import useDeviceSocket from "@/hooks/useDeviceSocket";
 import getDeviceData from "@/utils/getDeviceData";
 import { Button } from "flowbite-react";
+import Head from "next/head";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -76,6 +77,9 @@ const Dishwasher = () => {
   return (
     <Layout>
       <div className="container mx-auto sm:px-4 py-8">
+        <Head>
+          <title>نوژن - ماشین ظرفشویی</title>
+        </Head>
         <h1 className="text-2xl sm:text-3xl font-bold z-50 text-gray-800 sm:mb-8">
           کنترل ماشین ظرفشویی
         </h1>

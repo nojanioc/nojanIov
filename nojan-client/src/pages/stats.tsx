@@ -20,6 +20,7 @@ import {
 import { Card, Tabs } from "flowbite-react";
 import { GetServerSidePropsContext } from "next";
 import { getSession } from "next-auth/react";
+import Head from "next/head";
 import { useState } from "react";
 import { Line } from "react-chartjs-2";
 import { useQuery } from "react-query";
@@ -258,13 +259,14 @@ const Stats = () => {
   return (
     <Layuot>
       <div className="space-y-6">
-        {/* Header Section */}
+        <Head>
+          <title>نوژن - آمار و گزارشات</title>
+        </Head>
         <div>
           <h1 className="text-2xl font-bold text-gray-800">آمار و گزارشات</h1>
           <p className="text-gray-600 mt-1">نمایش آمار استفاده از دستگاه‌ها</p>
         </div>
 
-        {/* Device Tabs */}
         <Tabs
           onActiveTabChange={(tab) => {
             const device = userData?.devices[tab];

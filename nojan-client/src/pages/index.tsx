@@ -15,6 +15,7 @@ import classNames from "classnames";
 import { Card } from "flowbite-react";
 import { GetServerSidePropsContext } from "next";
 import { getSession, useSession } from "next-auth/react";
+import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
@@ -63,6 +64,9 @@ const Landing = () => {
   return (
     <Layuot>
       <div className="space-y-6">
+        <Head>
+          <title>نوژن - دشبورد</title>
+        </Head>
         <div className="bg-gradient-to-r from-red-50 to-red-100 rounded-2xl p-6 shadow-sm">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div>

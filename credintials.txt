@@ -1,3 +1,11 @@
 iot.nojan@gmail.com
 @iotNojan1234
 37.32.15.0
+
+
+change title of the pages
+add domain
+check with socket realtime
+why charts has data even without data
+
+change apis to server address

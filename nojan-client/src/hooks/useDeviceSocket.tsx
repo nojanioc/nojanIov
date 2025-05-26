@@ -27,7 +27,6 @@ const useDeviceSocket = (deviceName: string) => {
       const socket = deviceSocket(session?.data?.user?.token || "");
 
       socket.on("connect", () => {
-        console.log("Connected to server socket");
         console.log("Attempting to connect to device:", deviceName);
         socket.emit("connectToDevice", deviceName);
         setIsConnected(true);
