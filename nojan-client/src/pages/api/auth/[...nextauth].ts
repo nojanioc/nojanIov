@@ -3,15 +3,17 @@ import nextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 const handler = nextAuth({
+  session: {
+    strategy: "jwt",
+  },
+  // Ensure NextAuth uses the correct URL from environment
+  ...(process.env.NEXTAUTH_URL && { url: process.env.NEXTAUTH_URL }),
   providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
         email: { label: "email", type: "text" },
         password: { label: "password", type: "password" },
-      },
-      session: {
-        strategy: "jwt",
       },
 
       //@ts-ignore
@@ -43,6 +45,12 @@ const handler = nextAuth({
     session: async ({ session, token }: any) => {
       session.user = token.user;
       return Promise.resolve(session);
+    },
+    redirect: async ({ url, baseUrl }: any) => {
+      // Ensure redirects always use the correct base URL
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      if (new URL(url).origin === baseUrl) return url;
+      return baseUrl + "/login";
     },
   },
   pages: {

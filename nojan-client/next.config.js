@@ -7,7 +7,10 @@ const env = isPrd ? ".env.prd" : ".env.local";
 const envFile = fs.readFileSync(path.resolve(process.cwd(), env), "utf8");
 const envVars = envFile.split("\n").reduce((acc, line) => {
   const [key, value] = line.split("=");
-  acc[key] = value;
+  if (key && value) {
+    acc[key] = value;
+    process.env[key] = value;
+  }
   return acc;
 }, {});
 

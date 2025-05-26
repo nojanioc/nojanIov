@@ -37,7 +37,7 @@ const Layout = ({ children }: { children: React.ReactElement }) => {
     name: "exit",
     label: "خروج",
     action: () => {
-      signOut();
+      signOut({ callbackUrl: "/login" });
     },
   };
 
