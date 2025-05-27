@@ -50,8 +50,8 @@ const Landing = () => {
     },
     {
       value: "pizzaoven",
-      label: "اجاق پیتزا هوشمند",
-      description: "به زودی...",
+      label: "فر پیتزا هوشمند",
+      description: "فر ریلی پیتزا نوژن مدل 2230N",
       img: cookingDevice,
       disabled: !devices.includes("pizzaoven"),
     },

@@ -11,11 +11,13 @@ import Logo from "../../public/images/logo.png";
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
     formState: { errors },
     handleSubmit,
+    setError,
   } = useForm<RegisterFormData>({});
 
   const router = useRouter();
@@ -27,6 +29,7 @@ const Login = () => {
         email: values.email,
         password: values.password,
       });
+      console.log({ res });
       if (res?.ok) {
         router.push("/");
         return;
@@ -34,6 +37,12 @@ const Login = () => {
       if (res?.error) {
         toast(res?.error, { type: "error" });
         setLoading(false);
+        setError("password", { message: "اطلاعات وارد شده اشتباه است" });
+      }
+      if (res?.status === 401) {
+        toast("اطلاعات وارد شده اشتباه است", { type: "error" });
+        setLoading(false);
+        setError("password", { message: "اطلاعات وارد شده اشتباه است" });
       }
     } catch (e) {
       toast("خطایی رخ داد. لطفا دوباره تلاش کنید", { type: "error" });
@@ -94,10 +103,11 @@ const Login = () => {
                     type="email"
                     name="email"
                     id="email"
+                    dir="ltr"
                     className={`w-full px-4 py-3 rounded-xl border ${
                       errors.email ? "border-red-500" : "border-gray-300"
                     } focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200`}
-                    placeholder="example@company.com"
+                    placeholder="example@company.com ایمیل"
                   />
                   {errors.email && (
                     <p className="text-red-500 text-sm mt-1">
@@ -111,25 +121,84 @@ const Login = () => {
                   <label className="block text-sm font-medium text-gray-700">
                     رمز عبور
                   </label>
-                  <input
-                    {...register("password", {
-                      required: {
-                        value: true,
-                        message: "لطفا رمز عبور خود را وارد کنید",
-                      },
-                      minLength: {
-                        value: 6,
-                        message: "رمز عبور باید حداقل 6 کاراکتر باشد",
-                      },
-                    })}
-                    type="password"
-                    name="password"
-                    id="password"
-                    className={`w-full px-4 py-3 rounded-xl border ${
-                      errors.password ? "border-red-500" : "border-gray-300"
-                    } focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200`}
-                    placeholder="••••••••"
-                  />
+                  <div className="relative">
+                    <input
+                      {...register("password", {
+                        required: {
+                          value: true,
+                          message: "لطفا رمز عبور خود را وارد کنید",
+                        },
+                        minLength: {
+                          value: 6,
+                          message: "رمز عبور باید حداقل 6 کاراکتر باشد",
+                        },
+                      })}
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      id="password"
+                      dir="ltr"
+                      className={`w-full px-4 py-3 rounded-xl border ${
+                        errors.password ? "border-red-500" : "border-gray-300"
+                      } focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200`}
+                      placeholder="رمز عبور"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                    >
+                      {showPassword ? (
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 5c4.418 0 8 2.686 8 6s-3.582 6-8 6-8-2.686-8-6 3.582-6 8-6z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8a3 3 0 100 6 3 3 0 000-6z"
+                          />
+                          <line
+                            x1="4"
+                            y1="4"
+                            x2="20"
+                            y2="20"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                      ) : (
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 5c4.418 0 8 2.686 8 6s-3.582 6-8 6-8-2.686-8-6 3.582-6 8-6z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8a3 3 0 100 6 3 3 0 000-6z"
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                   {errors.password && (
                     <p className="text-red-500 text-sm mt-1">
                       {errors.password.message}
