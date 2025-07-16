@@ -11,13 +11,13 @@ RUN adduser -S nodejs -u 1001
 COPY --chown=nodejs:nodejs package*.json ./
 COPY --chown=nodejs:nodejs nojan-client/package*.json ./nojan-client/
 
+# Copy the entire project structure for local dependencies
+COPY --chown=nodejs:nodejs . .
+
 # Install dependencies as nodejs user
 USER nodejs
-RUN npm install
-RUN npm --prefix ./nojan-client install
-
-# Copy source code
-COPY --chown=nodejs:nodejs nojan-client ./nojan-client
+RUN npm install --no-optional --legacy-peer-deps
+RUN npm --prefix ./nojan-client install --no-optional --legacy-peer-deps
 
 # Build the Next.js application for production
 RUN npm --prefix ./nojan-client run build-prd

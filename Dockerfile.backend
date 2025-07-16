@@ -11,13 +11,13 @@ RUN adduser -S nodejs -u 1001
 COPY --chown=nodejs:nodejs package*.json ./
 COPY --chown=nodejs:nodejs nojan-server/package*.json ./nojan-server/
 
+# Copy the entire project structure for local dependencies
+COPY --chown=nodejs:nodejs . .
+
 # Install dependencies as nodejs user
 USER nodejs
-RUN npm install
-RUN npm --prefix ./nojan-server install
-
-# Copy source code
-COPY --chown=nodejs:nodejs nojan-server ./nojan-server
+RUN npm install --no-optional --legacy-peer-deps
+RUN npm --prefix ./nojan-server install --no-optional --legacy-peer-deps
 
 # Expose port
 EXPOSE 3001
