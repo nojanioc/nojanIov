@@ -32,7 +32,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 initializeSocket(server);
 
 mongoose
-  .connect("mongodb://localhost:27017/nojan", {
+  .connect(process.env.MONGODB_URI || "mongodb://localhost:27017/nojan", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
