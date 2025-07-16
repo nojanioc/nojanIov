@@ -14,8 +14,8 @@ RUN npm --prefix ./nojan-client install
 # Copy source code
 COPY nojan-client ./nojan-client
 
-# Build the Next.js application
-RUN npm --prefix ./nojan-client run build
+# Build the Next.js application for production
+RUN npm --prefix ./nojan-client run build-prd
 
 # Create a non-root user
 RUN addgroup -g 1001 -S nodejs
