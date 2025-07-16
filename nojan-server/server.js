@@ -32,10 +32,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 initializeSocket(server);
 
 mongoose
-  .connect(process.env.MONGODB_URI || "mongodb://localhost:27017/nojan", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect("mongodb://localhost:27017/nojan")
   .then(() => {
     console.log("Connected to MongoDB");
     ensureAdminUser(); // Call the handler to ensure admin user is created
