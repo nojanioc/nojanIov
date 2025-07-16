@@ -3,24 +3,21 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-COPY nojan-server/package*.json ./nojan-server/
+# Create a non-root user first
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nodejs -u 1001
 
-# Install dependencies
+# Copy package files
+COPY --chown=nodejs:nodejs package*.json ./
+COPY --chown=nodejs:nodejs nojan-server/package*.json ./nojan-server/
+
+# Install dependencies as nodejs user
+USER nodejs
 RUN npm install
 RUN npm --prefix ./nojan-server install
 
 # Copy source code
-COPY nojan-server ./nojan-server
-
-# Create a non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
-
-# Change ownership of the app directory
-RUN chown -R nodejs:nodejs /app
-USER nodejs
+COPY --chown=nodejs:nodejs nojan-server ./nojan-server
 
 # Expose port
 EXPOSE 3001
