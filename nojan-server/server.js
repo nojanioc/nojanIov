@@ -14,7 +14,19 @@ const cors = require("cors");
 const app = express();
 const server = http.createServer(app);
 
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "http://37.32.15.0:3000",
+      "http://188.121.116.76:3000",
+      "http://188.121.116.76:3001",
+    ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*"); // Replace '*' with specific domains for better security
