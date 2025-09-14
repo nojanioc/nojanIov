@@ -27,9 +27,6 @@ function authorizeRole(role) {
 
 async function loginHandler(req, res) {
   const { password, email } = req.body;
-
-  console.log({ email, password });
-
   const user = await User.findOne({ email });
   if (!user || !bcrypt.compareSync(password, user.password)) {
     return res.sendStatus(401);

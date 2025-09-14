@@ -59,6 +59,10 @@ async function ensureAdminUser() {
             name: "dishwasher",
             ip: "185.155.14.50",
           },
+          {
+            name: "pizzaoven",
+            ip: "185.155.14.50",
+          },
         ],
       });
       await admin.save();

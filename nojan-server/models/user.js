@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const deviceSchema = new mongoose.Schema({
   name: {
     type: String,
-    enum: ["dishwasher", "pizza"],
+    enum: ["dishwasher", "pizzaoven"],
     required: true,
   },
   ip: {

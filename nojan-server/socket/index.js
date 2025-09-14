@@ -29,8 +29,6 @@ const initializeSocket = (server) => {
       let externalSocket = null;
 
       socket.on("connectToDevice", async (deviceName) => {
-        console.log("Attempting to connect to device:", deviceName);
-
         const device = user.devices.find((d) => d.name === deviceName);
 
         if (!device) {
@@ -45,7 +43,9 @@ const initializeSocket = (server) => {
         }
 
         externalSocket = new net.Socket();
-        const serverPort = 8888;
+        const serverPort = deviceName === "dishwasher" ? 8888 : 8787;
+
+        console.log("Connecting to device at", serverPort);
 
         externalSocket.on("data", (data) => {
           try {
