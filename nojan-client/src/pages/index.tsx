@@ -55,8 +55,6 @@ const Landing = () => {
     },
   ];
 
-  console.log(machineOptions, "machineOptions");
-
   const handleRedirect = (url: string) => {
     router.push("/devices/" + url);
   };
