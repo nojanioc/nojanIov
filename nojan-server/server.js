@@ -43,13 +43,15 @@ mongoose
 
 async function ensureAdminUser() {
   try {
-    const existingAdmin = await User.findOne({
-      email: ADMIN_EMAIL,
-      role: "admin",
-    });
-    if (!existingAdmin) {
-      const hashedPassword = bcrypt.hashSync(ADMIN_PASSWORD, 8);
-      const admin = new User({
+    const hashedPassword = bcrypt.hashSync(ADMIN_PASSWORD, 8);
+
+    // Use findOneAndUpdate with upsert to update if exists, create if not
+    const admin = await User.findOneAndUpdate(
+      {
+        email: ADMIN_EMAIL,
+        role: "admin",
+      },
+      {
         email: ADMIN_EMAIL,
         password: hashedPassword,
         username: "admin",
@@ -64,12 +66,15 @@ async function ensureAdminUser() {
             ip: "185.155.14.50",
           },
         ],
-      });
-      await admin.save();
-      console.log("Admin user created:", ADMIN_EMAIL);
-    } else {
-      console.log("Admin user already exists:", ADMIN_EMAIL);
-    }
+      },
+      {
+        upsert: true, // Create if doesn't exist
+        new: true, // Return the updated document
+        setDefaultsOnInsert: true, // Apply defaults on insert
+      }
+    );
+
+    console.log("Admin user ensured (updated/created):", ADMIN_EMAIL);
   } catch (error) {
     console.error("Error ensuring admin user:", error);
   }
