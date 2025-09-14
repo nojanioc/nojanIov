@@ -7,7 +7,7 @@ const errorHandler =
       await handler(req, res);
     } catch (error) {
       console.error("Global error handler caught an error:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+      res.status(500).json({ error: "خطای داخلی سرور" });
     }
   };
 

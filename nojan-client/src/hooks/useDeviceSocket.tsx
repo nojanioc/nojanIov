@@ -86,7 +86,7 @@ const useDeviceSocket = (deviceName: "pizzaoven" | "dishwasher") => {
       socket.on("connect_error", (err) => {
         console.error("Connection error:", err.message);
         setIsConnecting(false);
-        showToastWithCooldown("Connection error: " + err.message, "error");
+        showToastWithCooldown("خطای اتصال: " + err.message, "error");
         setLoading(false);
       });
 
@@ -104,19 +104,19 @@ const useDeviceSocket = (deviceName: "pizzaoven" | "dishwasher") => {
   const sendCode = (code: string, withoutLoading = false) => {
     if (!socketRef.current) {
       console.error("Socket reference not initialized");
-      showToastWithCooldown("Socket not initialized", "error");
+      showToastWithCooldown("اتصال اولیه برقرار نشده است", "error");
       return;
     }
 
     if (!socketRef.current.connected) {
       console.error("Socket not connected to server");
-      showToastWithCooldown("Not connected to server", "error");
+      showToastWithCooldown("به سرور متصل نیست", "error");
       return;
     }
 
     if (!isConnected) {
       console.error("Not connected to device");
-      showToastWithCooldown("Not connected to device", "error");
+      showToastWithCooldown("به دستگاه متصل نیست", "error");
       return;
     }
 
@@ -128,7 +128,7 @@ const useDeviceSocket = (deviceName: "pizzaoven" | "dishwasher") => {
       }
     } catch (error) {
       console.error("Error sending code:", error);
-      showToastWithCooldown("Failed to send code to device", "error");
+      showToastWithCooldown("ارسال کد به دستگاه ناموفق بود", "error");
     }
   };
 
