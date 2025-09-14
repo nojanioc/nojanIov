@@ -33,8 +33,6 @@ ChartJS.register(
 );
 
 const Landing = () => {
-  console.log(process.env.NEXTAUTH_URL, process.env.NODE_ENV, "test");
-
   const router = useRouter();
   const session = useSession();
   const user = useQuery("user", () => getMe());
@@ -56,6 +54,8 @@ const Landing = () => {
       disabled: !devices.includes("pizzaoven"),
     },
   ];
+
+  console.log(machineOptions, "machineOptions");
 
   const handleRedirect = (url: string) => {
     router.push("/devices/" + url);
