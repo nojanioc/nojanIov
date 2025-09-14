@@ -1,6 +1,9 @@
 import { io, Socket } from "socket.io-client";
 
-const deviceSocket = (token: string): Socket => {
+const deviceSocket = (
+  token: string,
+  deviceName: "pizzaoven" | "dishwasher"
+): Socket => {
   // Connect to the backend server, not the frontend
   const serverUrl =
     process.env.BASE_URL ||
@@ -9,6 +12,7 @@ const deviceSocket = (token: string): Socket => {
   return io(serverUrl, {
     auth: {
       token,
+      deviceName,
     },
   });
 };

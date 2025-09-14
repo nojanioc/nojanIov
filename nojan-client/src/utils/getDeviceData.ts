@@ -11,9 +11,18 @@ type DishwasherData = {
   isWaterFull: "full" | "empty";
 };
 
+type PizzaovenData = {
+  deviceTemperature: number;
+  power: "on" | "off";
+  time: string;
+  heaterError: boolean;
+  sensorError: boolean;
+  torchPower: boolean;
+};
+
 type DeviceData<T extends string> = T extends "dishwasher"
   ? DishwasherData
-  : Record<string, never>;
+  : PizzaovenData;
 
 const getDeviceData = <T extends string>(
   deviceType: T,
@@ -34,7 +43,15 @@ const getDeviceData = <T extends string>(
     };
     return dishwasherObject as DeviceData<T>;
   } else {
-    return {} as DeviceData<T>;
+    const pizzaovenObject = {
+      deviceTemperature: Number(value.slice(0, 3)),
+      power: value.slice(3, 4) === "1" ? "on" : "off",
+      time: value.slice(4, 7),
+      heaterError: value.slice(7, 9) === "1" ? true : false,
+      sensorError: value.slice(9, 10) === "1" ? true : false,
+      torchPower: value.slice(10, 11) === "1" ? true : false,
+    };
+    return pizzaovenObject as DeviceData<T>;
   }
 };
 

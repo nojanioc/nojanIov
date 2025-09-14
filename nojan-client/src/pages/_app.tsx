@@ -44,7 +44,20 @@ export default function App({ Component, pageProps }: AppProps) {
     <div className={`${yekans.variable} font-yekan`}>
       <QueryClientProvider client={queryClient}>
         <SessionProvider session={pageProps.session}>
-          <ToastContainer />
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={true}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            className="toast-container"
+            toastClassName="toast-message max-w-full m-2"
+            bodyClassName="toast-body"
+          />
           <Component {...pageProps} />
         </SessionProvider>
       </QueryClientProvider>

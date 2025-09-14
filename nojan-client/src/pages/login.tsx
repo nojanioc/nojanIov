@@ -29,7 +29,6 @@ const Login = () => {
         email: values.email,
         password: values.password,
       });
-      console.log({ res });
       if (res?.ok) {
         router.push("/");
         return;

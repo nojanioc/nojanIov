@@ -4,8 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { Socket } from "socket.io-client";
 
-const useDeviceSocket = (deviceName: string) => {
+const useDeviceSocket = (deviceName: "pizzaoven" | "dishwasher") => {
   const socketRef = useRef<Socket | null>(null);
+  const lastToastTimeRef = useRef(0);
+  const isFirstConnectionRef = useRef(true);
+  const toastCooldown = 10000; // 10 seconds
   const session = useSession();
   const [deviceState, setDeviceState] = useState("");
   const [isConnected, setIsConnected] = useState(false);
@@ -21,30 +24,56 @@ const useDeviceSocket = (deviceName: string) => {
     }
   }, [isConnected]);
 
+  const showToastWithCooldown = (
+    message: string,
+    type: "success" | "warning" | "error" = "success"
+  ) => {
+    const now = Date.now();
+    if (now - lastToastTimeRef.current >= toastCooldown) {
+      lastToastTimeRef.current = now;
+      if (type === "success") {
+        toast.success(message);
+      } else if (type === "warning") {
+        toast.warning(message);
+      } else {
+        toast.error(message);
+      }
+    }
+  };
+
   const handleSocketConnect = () => {
     if (session && session.data) {
       setIsConnecting(true);
-      const socket = deviceSocket(session?.data?.user?.token || "");
+      const socket = deviceSocket(session?.data?.user?.token || "", deviceName);
 
       socket.on("connect", () => {
-        console.log("Attempting to connect to device:", deviceName);
+        console.log(
+          "Connected to server, attempting to connect to device:",
+          deviceName
+        );
         socket.emit("connectToDevice", deviceName);
         setIsConnected(true);
         setIsConnecting(false);
+
+        if (isFirstConnectionRef.current) {
+          // showToastWithCooldown("اتصال با دستگاه انجام شد");
+          isFirstConnectionRef.current = false;
+        } else {
+          showToastWithCooldown("اتصال مجدد با دستگاه انجام شد");
+        }
       });
 
       socket.on("disconnected", () => {
-        console.log("Disconnected from device");
         setIsConnected(false);
         setIsConnecting(false);
-        toast.warning("Disconnected from device");
+        showToastWithCooldown("قطع اتصال", "warning");
         setLoading(false);
       });
 
       socket.on("error", (error) => {
         console.error("Device error:", error);
         setIsConnecting(false);
-        toast.error(error);
+        showToastWithCooldown(error, "error");
         setLoading(false);
       });
 
@@ -57,7 +86,14 @@ const useDeviceSocket = (deviceName: string) => {
       socket.on("connect_error", (err) => {
         console.error("Connection error:", err.message);
         setIsConnecting(false);
-        toast.error("Connection error: " + err.message);
+        showToastWithCooldown("Connection error: " + err.message, "error");
+        setLoading(false);
+      });
+
+      socket.on("disconnect", (reason) => {
+        console.log("Socket disconnected:", reason);
+        setIsConnected(false);
+        setIsConnecting(false);
         setLoading(false);
       });
 
@@ -68,19 +104,19 @@ const useDeviceSocket = (deviceName: string) => {
   const sendCode = (code: string, withoutLoading = false) => {
     if (!socketRef.current) {
       console.error("Socket reference not initialized");
-      toast.error("Socket not initialized");
+      showToastWithCooldown("Socket not initialized", "error");
       return;
     }
 
     if (!socketRef.current.connected) {
       console.error("Socket not connected to server");
-      toast.error("Not connected to server");
+      showToastWithCooldown("Not connected to server", "error");
       return;
     }
 
     if (!isConnected) {
       console.error("Not connected to device");
-      toast.error("Not connected to device");
+      showToastWithCooldown("Not connected to device", "error");
       return;
     }
 
@@ -92,7 +128,7 @@ const useDeviceSocket = (deviceName: string) => {
       }
     } catch (error) {
       console.error("Error sending code:", error);
-      toast.error("Failed to send code to device");
+      showToastWithCooldown("Failed to send code to device", "error");
     }
   };
 
@@ -104,6 +140,14 @@ const useDeviceSocket = (deviceName: string) => {
     sendCode("08");
   };
 
+  const turnOnTheTorch = () => {
+    sendCode("04");
+  };
+
+  const turnOfTheTorch = () => {
+    sendCode("05");
+  };
+
   const changeCleaningMode = (value: "01" | "02" | "03" | "04") => {
     sendCode(`0${Number(value) + 2}`);
   };
@@ -112,7 +156,23 @@ const useDeviceSocket = (deviceName: string) => {
     sendCode("06" + value + "");
   };
 
+  const changeTime = (value: number) => {
+    sendCode("03" + value + "");
+  };
+
+  const manualReconnect = () => {
+    console.log("Manual reconnect requested");
+    isFirstConnectionRef.current = false; // This is a manual reconnect, not first connection
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+    }
+    handleSocketConnect();
+  };
+
   useEffect(() => {
+    // Reset first connection flag when device name changes
+    isFirstConnectionRef.current = true;
+
     handleSocketConnect();
     return () => {
       if (socketRef.current) {
@@ -132,6 +192,10 @@ const useDeviceSocket = (deviceName: string) => {
     isConnecting,
     turnOfTheDevice,
     loading,
+    changeTime,
+    turnOnTheTorch,
+    turnOfTheTorch,
+    manualReconnect,
   };
 };
 

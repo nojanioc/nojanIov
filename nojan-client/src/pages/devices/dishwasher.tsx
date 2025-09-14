@@ -33,6 +33,9 @@ const Dishwasher = () => {
     deviceState,
     turnOfTheDevice,
     loading,
+    isConnected,
+    isConnecting,
+    manualReconnect,
   } = useDeviceSocket("dishwasher");
 
   const dishwasherState = getDeviceData("dishwasher", deviceState);
@@ -50,18 +53,18 @@ const Dishwasher = () => {
 
   const handlePowerOn = () => {
     turnOnTheDevice();
-    toast.success("دستگاه روشن شد");
+    toast.success("دستور روشن کردن دستگاه ارسال شد");
   };
 
   const handlePowerOff = () => {
     turnOfTheDevice();
-    toast.success("دستگاه خاموش شد");
+    toast.success("دستور خاموش کردن دستگاه ارسال شد");
   };
 
   const handleModeChange = (value: string) => {
     if (dishwasherState.power === "on") {
       changeCleaningMode(value as "01" | "02" | "03");
-      toast.success("درخواست تغییر حالت شستشو به حالت " + value + " ارسال شد");
+      toast.success("دستور تغییر حالت شستشو به حالت " + value + " ارسال شد");
       setRequestedCleaningMode(value);
     }
   };
@@ -80,9 +83,41 @@ const Dishwasher = () => {
         <Head>
           <title>نوژن - ماشین ظرفشویی</title>
         </Head>
-        <h1 className="text-2xl sm:text-3xl font-bold z-50 text-gray-800 sm:mb-8">
-          کنترل ماشین ظرفشویی
-        </h1>
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold z-50 text-gray-800">
+            کنترل ماشین ظرفشویی
+          </h1>
+
+          {/* Connection Status */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <div
+                className={`w-3 h-3 rounded-full ${
+                  isConnected
+                    ? "bg-green-500"
+                    : isConnecting
+                    ? "bg-yellow-500 animate-pulse"
+                    : "bg-red-500"
+                }`}
+              />
+              <span className="text-sm text-gray-600">
+                {isConnected
+                  ? "متصل"
+                  : isConnecting
+                  ? "در حال اتصال..."
+                  : "قطع شده"}
+              </span>
+            </div>
+            {!isConnected && !isConnecting && (
+              <button
+                onClick={manualReconnect}
+                className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              >
+                تلاش مجدد
+              </button>
+            )}
+          </div>
+        </div>
         <div className="grid grid-cols-4 gap-6 justify-center items-center z-0 pt-6 mt-auto relative sm:mt-[-100px]">
           <div className="col-span-4 sm:col-span-3 overflow-hidden relative flex justify-center">
             <div className="flex flex-col">

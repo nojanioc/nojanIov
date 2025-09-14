@@ -46,7 +46,10 @@ const Layout = ({ children }: { children: React.ReactElement }) => {
   return (
     <div className="w-full min-h-screen flex gap-2 lg:gap-4 flex-col md:flex-row p-4 bg-gray-50">
       {/* Sidebar */}
-      <div className="fixed top-0 right-0 md:right-4 md:top-4 flex flex-col items-center justify-between rounded-2xl py-4 px-4 md:w-40 w-full md:h-[calc(100vh-2rem)] h-20 bg-white shadow-lg z-50">
+      <div
+        className="fixed top-0 right-0 md:right-4 md:top-4 flex flex-col items-center justify-between rounded-2xl py-4 px-4 md:w-40 w-full md:h-[calc(100vh-2rem)] h-20 bg-white shadow-lg z-50"
+        style={{ zIndex: 100 }}
+      >
         <div className="flex md:flex-col items-center md:items-start gap-3 md:gap-6">
           {data.map((d) => {
             const isActive = asPath === d.url;

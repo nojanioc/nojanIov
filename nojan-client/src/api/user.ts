@@ -7,7 +7,7 @@ export interface RegisterFormData {
   password: string;
   username: string;
   devices: Array<{
-    name: "dishwasher" | "pizza";
+    name: DeviceNameType;
     ip: string;
   }>;
 }

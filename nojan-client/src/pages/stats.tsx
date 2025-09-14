@@ -7,6 +7,7 @@ import {
   HistoryType,
 } from "@/services/historyService";
 import { UserData } from "@/services/userService";
+import getDeviceData from "@/utils/getDeviceData";
 import {
   CategoryScale,
   Chart as ChartJS,
@@ -36,17 +37,22 @@ ChartJS.register(
 );
 
 interface DeviceStatus {
-  temperature: number;
+  deviceTemperature: number;
+  power: "on" | "off";
   isOn: boolean;
-  cleaningMode: number;
+  cleaningMode?: number;
+  time?: string;
   errors: {
-    mainContactor: boolean;
-    pump1: boolean;
-    pump2: boolean;
-    pump3: boolean;
-    door: boolean;
-    waterLevel: boolean;
+    mainContactor?: boolean;
+    pump1?: boolean;
+    pump2?: boolean;
+    pump3?: boolean;
+    door?: boolean;
+    waterLevel?: boolean;
+    heaterError?: boolean;
+    sensorError?: boolean;
   };
+  torchPower?: boolean;
 }
 
 interface UsageStats {
@@ -59,7 +65,7 @@ interface UsageStats {
 interface Insights {
   status: string;
   temperature: number;
-  cleaningMode: number;
+  cleaningMode?: number;
   errorCount: number;
   recommendations: string[];
 }
@@ -105,28 +111,49 @@ const Stats = () => {
   );
 
   const history = historyData?.history || [];
-  const { deviceState } = useDeviceSocket(selectedDevice);
+  const { deviceState, isConnected, isConnecting, manualReconnect } =
+    useDeviceSocket(selectedDevice as DeviceNameType);
 
-  const parseDeviceStatus = (status: string): DeviceStatus => {
-    return {
-      temperature: parseInt(status.substring(0, 2)),
-      isOn: status[2] === "1",
-      cleaningMode: parseInt(status[3]),
-      errors: {
-        mainContactor: status[4] === "1",
-        pump1: status[5] === "1",
-        pump2: status[6] === "1",
-        pump3: status[7] === "1",
-        door: status[8] === "1",
-        waterLevel: status[9] === "1",
-      },
-    };
-  };
-
-  // Get current device status
   const getCurrentStatus = (): DeviceStatus | null => {
-    if (history.length === 0) return null;
-    return parseDeviceStatus(deviceState);
+    if (history.length === 0 || !deviceState) return null;
+
+    const deviceData = getDeviceData(
+      selectedDevice as DeviceNameType,
+      deviceState
+    );
+
+    if (selectedDevice === "dishwasher") {
+      const dishwasherData = deviceData as any; // Type assertion for dishwasher data
+      return {
+        deviceTemperature: dishwasherData.deviceTemperature,
+        power: dishwasherData.power,
+        isOn: dishwasherData.power === "on",
+        cleaningMode: parseInt(dishwasherData.cleaningMode),
+        errors: {
+          mainContactor: dishwasherData.contactor === "1",
+          pump1: dishwasherData.pomp1 === "1",
+          pump2: dishwasherData.pomp2 === "1",
+          pump3: dishwasherData.pomp3 === "1",
+          door: dishwasherData.isDoorOpen === "open",
+          waterLevel: dishwasherData.isWaterFull === "empty",
+        },
+      };
+    } else if (selectedDevice === "pizzaoven") {
+      const pizzaOvenData = deviceData as any; // Type assertion for pizza oven data
+      return {
+        deviceTemperature: pizzaOvenData.deviceTemperature,
+        power: pizzaOvenData.power,
+        isOn: pizzaOvenData.power === "on",
+        time: pizzaOvenData.time,
+        errors: {
+          heaterError: pizzaOvenData.heaterError,
+          sensorError: pizzaOvenData.sensorError,
+        },
+        torchPower: pizzaOvenData.torchPower,
+      };
+    }
+
+    return null;
   };
 
   // Calculate usage statistics
@@ -138,19 +165,30 @@ const Stats = () => {
     const weekStart = new Date(today);
     weekStart.setDate(today.getDate() - today.getDay());
 
-    const dailyUsage = history.filter(
-      (h: HistoryType) =>
-        new Date(h.receivedAt) >= today && h.status.toString()[2] === "1"
-    ).length;
+    const dailyUsage = history.filter((h: HistoryType) => {
+      const statusStr = h.status.toString();
+      const isOn =
+        selectedDevice === "dishwasher"
+          ? statusStr[2] === "1"
+          : statusStr[3] === "1";
+      return new Date(h.receivedAt) >= today && isOn;
+    }).length;
 
-    const weeklyUsage = history.filter(
-      (h: HistoryType) =>
-        new Date(h.receivedAt) >= weekStart && h.status.toString()[2] === "1"
-    ).length;
+    const weeklyUsage = history.filter((h: HistoryType) => {
+      const statusStr = h.status.toString();
+      const isOn =
+        selectedDevice === "dishwasher"
+          ? statusStr[2] === "1"
+          : statusStr[3] === "1";
+      return new Date(h.receivedAt) >= weekStart && isOn;
+    }).length;
 
-    const monthlyUsage = history.filter(
-      (h: HistoryType) => h.status.toString()[2] === "1"
-    ).length;
+    const monthlyUsage = history.filter((h: HistoryType) => {
+      const statusStr = h.status.toString();
+      return selectedDevice === "dishwasher"
+        ? statusStr[2] === "1"
+        : statusStr[3] === "1";
+    }).length;
 
     return {
       daily: dailyUsage,
@@ -171,9 +209,15 @@ const Stats = () => {
       datasets: [
         {
           label: "دمای دستگاه",
-          data: lastWeekData.map((h: HistoryType) =>
-            parseInt(h.status.toString().substring(0, 2))
-          ),
+          data: lastWeekData.map((h: HistoryType) => {
+            const statusStr = h.status.toString();
+            if (selectedDevice === "dishwasher") {
+              return parseInt(statusStr.substring(0, 2));
+            } else if (selectedDevice === "pizzaoven") {
+              return parseInt(statusStr.substring(0, 3));
+            }
+            return 0;
+          }),
           borderColor: "rgb(239, 68, 68)",
           backgroundColor: "rgba(239, 68, 68, 0.5)",
           tension: 0.4,
@@ -193,9 +237,15 @@ const Stats = () => {
       datasets: [
         {
           label: "وضعیت دستگاه",
-          data: lastMonthData.map((h: HistoryType) =>
-            h.status.toString()[2] === "1" ? 1 : 0
-          ),
+          data: lastMonthData.map((h: HistoryType) => {
+            const statusStr = h.status.toString();
+            if (selectedDevice === "dishwasher") {
+              return statusStr[2] === "1" ? 1 : 0;
+            } else if (selectedDevice === "pizzaoven") {
+              return statusStr[3] === "1" ? 1 : 0;
+            }
+            return 0;
+          }),
           borderColor: "rgb(59, 130, 246)",
           backgroundColor: "rgba(59, 130, 246, 0.5)",
           tension: 0.4,
@@ -212,26 +262,50 @@ const Stats = () => {
     if (!currentStatus) return null;
 
     const usageStats = calculateUsageStats();
-    const errorCount = history.filter((h: HistoryType) =>
-      h.status.toString().substring(4).includes("1")
-    ).length;
+
+    // Calculate error count based on device type
+    let errorCount = 0;
+    if (selectedDevice === "dishwasher") {
+      errorCount = history.filter((h: HistoryType) =>
+        h.status.toString().substring(4).includes("1")
+      ).length;
+    } else if (selectedDevice === "pizzaoven") {
+      errorCount = history.filter((h: HistoryType) => {
+        const statusStr = h.status.toString();
+        return statusStr.slice(7, 9) === "1" || statusStr.slice(9, 10) === "1";
+      }).length;
+    }
+
+    const recommendations = [];
+
+    if (errorCount > 0) {
+      recommendations.push(
+        "توصیه می‌شود دستگاه را برای بررسی خطاها سرویس کنید"
+      );
+    }
+
+    if (currentStatus.deviceTemperature > 30) {
+      recommendations.push("دمای دستگاه بالاست، بررسی کنید");
+    }
+
+    if (usageStats?.daily && usageStats.daily > 10) {
+      recommendations.push("استفاده روزانه بالا است، بهینه‌سازی کنید");
+    }
+
+    if (
+      selectedDevice === "pizzaoven" &&
+      currentStatus.torchPower &&
+      !currentStatus.isOn
+    ) {
+      recommendations.push("مشعل روشن است اما دستگاه خاموش است، بررسی کنید");
+    }
 
     return {
-      status: currentStatus.isOn ? "فعال" : "خاموش",
-      temperature: currentStatus.temperature,
-      cleaningMode: currentStatus.cleaningMode,
+      status: currentStatus.power === "on" ? "فعال" : "خاموش",
+      temperature: currentStatus.deviceTemperature,
+      cleaningMode: currentStatus?.cleaningMode,
       errorCount,
-      recommendations: [
-        errorCount > 0
-          ? "توصیه می‌شود دستگاه را برای بررسی خطاها سرویس کنید"
-          : null,
-        currentStatus.temperature > 30
-          ? "دمای دستگاه بالاست، بررسی کنید"
-          : null,
-        usageStats?.daily && usageStats.daily > 10
-          ? "استفاده روزانه بالا است، بهینه‌سازی کنید"
-          : null,
-      ].filter(Boolean) as string[],
+      recommendations,
     };
   };
 
@@ -267,24 +341,56 @@ const Stats = () => {
           <p className="text-gray-600 mt-1">نمایش آمار استفاده از دستگاه‌ها</p>
         </div>
 
-        <Tabs
-          onActiveTabChange={(tab) => {
-            const device = userData?.devices[tab];
-            if (device) {
-              setSelectedDevice(device.name as DeviceNameType);
-            }
-          }}
-        >
-          {userData?.devices.map((device) => (
-            <Tabs.Item
-              key={device.name}
-              active={selectedDevice === device.name}
-              title={
-                device.name === "dishwasher" ? "ماشین ظرفشویی" : "پیتزا پز"
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <Tabs
+            onActiveTabChange={(tab) => {
+              const device = userData?.devices[tab];
+              if (device) {
+                setSelectedDevice(device.name as DeviceNameType);
               }
-            />
-          ))}
-        </Tabs>
+            }}
+          >
+            {userData?.devices.map((device) => (
+              <Tabs.Item
+                key={device.name}
+                active={selectedDevice === device.name}
+                title={
+                  device.name === "dishwasher" ? "ماشین ظرفشویی" : "پیتزا پز"
+                }
+              />
+            ))}
+          </Tabs>
+
+          {/* Connection Status */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <div
+                className={`w-3 h-3 rounded-full ${
+                  isConnected
+                    ? "bg-green-500"
+                    : isConnecting
+                    ? "bg-yellow-500 animate-pulse"
+                    : "bg-red-500"
+                }`}
+              />
+              <span className="text-sm text-gray-600">
+                {isConnected
+                  ? "متصل"
+                  : isConnecting
+                  ? "در حال اتصال..."
+                  : "قطع شده"}
+              </span>
+            </div>
+            {!isConnected && !isConnecting && (
+              <button
+                onClick={manualReconnect}
+                className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              >
+                تلاش مجدد
+              </button>
+            )}
+          </div>
+        </div>
 
         {selectedDevice && (
           <>
@@ -465,17 +571,26 @@ const Stats = () => {
                             <div>
                               <p className="text-gray-600">دمای دستگاه</p>
                               <p className="text-lg font-semibold">
-                                {currentStatus?.temperature
-                                  ? currentStatus?.temperature + " °C"
+                                {currentStatus?.deviceTemperature
+                                  ? currentStatus?.deviceTemperature + " °C"
                                   : "-"}
                               </p>
                             </div>
-                            <div>
-                              <p className="text-gray-600">حالت شستشو</p>
-                              <p className="text-lg font-semibold">
-                                {currentStatus?.cleaningMode || "-"}
-                              </p>
-                            </div>
+                            {selectedDevice === "dishwasher" ? (
+                              <div>
+                                <p className="text-gray-600">حالت شستشو</p>
+                                <p className="text-lg font-semibold">
+                                  {currentStatus?.cleaningMode || "-"}
+                                </p>
+                              </div>
+                            ) : (
+                              <div>
+                                <p className="text-gray-600">زمان پخت</p>
+                                <p className="text-lg font-semibold">
+                                  {currentStatus?.time || "-"}
+                                </p>
+                              </div>
+                            )}
                             <div>
                               <p className="text-gray-600">تعداد خطاها</p>
                               <p className="text-lg font-semibold">
@@ -486,6 +601,20 @@ const Stats = () => {
                                 }
                               </p>
                             </div>
+                            {selectedDevice === "pizzaoven" && (
+                              <div>
+                                <p className="text-gray-600">وضعیت مشعل</p>
+                                <p
+                                  className={`text-lg font-semibold ${
+                                    currentStatus.torchPower
+                                      ? "text-orange-600"
+                                      : "text-gray-600"
+                                  }`}
+                                >
+                                  {currentStatus.torchPower ? "روشن" : "خاموش"}
+                                </p>
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -495,37 +624,65 @@ const Stats = () => {
                             وضعیت خطاها
                           </h3>
                           <div className="space-y-2">
-                            {Object.entries(currentStatus.errors).map(
-                              ([key, value]) => (
-                                <div
-                                  key={key}
-                                  className="flex items-center justify-between"
-                                >
-                                  <span className="text-gray-600">
-                                    {key === "mainContactor"
-                                      ? "کنتاکتور اصلی"
-                                      : key === "pump1"
-                                      ? "پمپ اول"
-                                      : key === "pump2"
-                                      ? "پمپ دوم"
-                                      : key === "pump3"
-                                      ? "پمپ سوم"
-                                      : key === "door"
-                                      ? "در"
-                                      : "سطح آب"}
-                                  </span>
-                                  <span
-                                    className={`px-2 py-1 rounded ${
-                                      value
-                                        ? "bg-red-100 text-red-600"
-                                        : "bg-green-100 text-green-600"
-                                    }`}
-                                  >
-                                    {value ? "خطا" : "نرمال"}
-                                  </span>
-                                </div>
-                              )
-                            )}
+                            {selectedDevice === "dishwasher"
+                              ? // Dishwasher errors
+                                Object.entries(currentStatus.errors).map(
+                                  ([key, value]) => (
+                                    <div
+                                      key={key}
+                                      className="flex items-center justify-between"
+                                    >
+                                      <span className="text-gray-600">
+                                        {key === "mainContactor"
+                                          ? "کنتاکتور اصلی"
+                                          : key === "pump1"
+                                          ? "پمپ اول"
+                                          : key === "pump2"
+                                          ? "پمپ دوم"
+                                          : key === "pump3"
+                                          ? "پمپ سوم"
+                                          : key === "door"
+                                          ? "در"
+                                          : "سطح آب"}
+                                      </span>
+                                      <span
+                                        className={`px-2 py-1 rounded ${
+                                          value
+                                            ? "bg-red-100 text-red-600"
+                                            : "bg-green-100 text-green-600"
+                                        }`}
+                                      >
+                                        {value ? "خطا" : "نرمال"}
+                                      </span>
+                                    </div>
+                                  )
+                                )
+                              : // Pizza oven errors
+                                Object.entries(currentStatus.errors).map(
+                                  ([key, value]) => (
+                                    <div
+                                      key={key}
+                                      className="flex items-center justify-between"
+                                    >
+                                      <span className="text-gray-600">
+                                        {key === "heaterError"
+                                          ? "هیتر"
+                                          : key === "sensorError"
+                                          ? "سنسور"
+                                          : key}
+                                      </span>
+                                      <span
+                                        className={`px-2 py-1 rounded ${
+                                          value
+                                            ? "bg-red-100 text-red-600"
+                                            : "bg-green-100 text-green-600"
+                                        }`}
+                                      >
+                                        {value ? "خطا" : "نرمال"}
+                                      </span>
+                                    </div>
+                                  )
+                                )}
                           </div>
                         </div>
                       </div>
